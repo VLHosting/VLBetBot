@@ -24,6 +24,8 @@ To be on the safe side, I would suggest you set the 'reserveBalance' 15,000.
 This means every time you earn 30k, 15k will be put aside for withdrawing or when you bust.
 
 
-If you have any questions, feel free to bring them up with me in the BustaBit chat @CurtisVL!
+### Got a better tutorial to put on here or have a question? Contact me in the BustaBit chat @CurtisVL!
 
-### Got a better tutorial to put on here? Contact me in the BustaBit chat @CurtisVL!
+
+## Donators:
+-Paladin (bustapaladin)
