@@ -5,12 +5,13 @@
 * Do not redistribute!
 *
 * Like the script? Consider donating me a few bits! :)
+* BustaBit User: CurtisVL
 *
 * Disclaimer: No one is responsible if you lose money whilst using this script!
 */
 
-//Version
-var version = 1.73;
+//Version -- Do not change this variable
+var version = 1.74;
 
 //----------Site----------//
 var BustaBit = true; 
@@ -19,10 +20,10 @@ var BustaBit = true;
 
 //----------Bet amount----------//
 var autoBaseBetEnabled = true; 
-// Default: false - Enable/Disable auto base bet. Described below.
+// Default: true - Enable/Disable auto base bet. Described below.
 
 var maxLossCount = 8;
-// Default: 5 - Max amount of loses to account for with autoBaseBetEnabled set to true.
+// Default: 8 - Max amount of loses to account for with autoBaseBetEnabled set to true.
 
 var percentageOfTotal = 100;
 // Default: 100 - Percentage of total balance to use when max loss is hit. (100 = 100%)
@@ -339,23 +340,6 @@ engine.on('game_starting', function(info){
 		
 		//Gamemode 4 (Pluscoup Modified)
 		if(mode == 4){
-			//Shutdown on max loss
-			if(lossCount > maxLossCount){
-				console.log("Max loss count reached! Shutting down...");
-				engine.stop();
-			}
-			
-			//Reset cooldown
-			if (resetLoss == true) {
-				if (lossCount == 0) {
-				resetLoss = false;
-			}
-			else {
-				lossCount--;
-				console.log('Waiting a few games! Games remaining: ' + lossCount);
-				return;
-				}
-			}
 			
 			//First Game
 			if(firstGame == true && betPlaced == false){
