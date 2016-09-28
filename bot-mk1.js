@@ -11,7 +11,7 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.75;
+var version = 1.76;
 
 //----------Site----------//
 var BustaBit = true; 
@@ -361,8 +361,6 @@ engine.on('game_starting', function(info){
 				}
 				lossBalance += lastBet;
 				Math.ceil(lossBalance);
-				placeBet();
-				betPlaced = true;
 				console.log("Amount to recover: " + lossBalance);
 				
 				if(currentBet >= ((engine.getBalance() / 100) - excludeAmount)){
@@ -375,6 +373,11 @@ engine.on('game_starting', function(info){
 					recovering = false;
 					firstLoss = true;
 					lossBalance = 0;
+					placeBet();
+					betPlaced = true;
+				}
+				
+				else{
 					placeBet();
 					betPlaced = true;
 				}
