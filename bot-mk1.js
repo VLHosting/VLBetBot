@@ -11,7 +11,7 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.74;
+var version = 1.75;
 
 //----------Site----------//
 var BustaBit = true; 
@@ -364,6 +364,20 @@ engine.on('game_starting', function(info){
 				placeBet();
 				betPlaced = true;
 				console.log("Amount to recover: " + lossBalance);
+				
+				if(currentBet >= ((engine.getBalance() / 100) - excludeAmount)){
+					console.log("Not enough balance to place next recovery bet!");
+					if(excludeAmount > 0){
+						excludeAmount -= reserveAmount;
+						console.log("Using reserve balance...");
+					}
+					currentBet = baseBet;
+					recovering = false;
+					firstLoss = true;
+					lossBalance = 0;
+					placeBet();
+					betPlaced = true;
+				}
 			}
 			
 			//On Win
