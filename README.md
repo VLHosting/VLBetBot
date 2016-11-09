@@ -6,7 +6,7 @@ The VoxelLoop Gaming Bet Bot is an advanced BustaBit bot designed to be ran 24/7
 https://github.com/VLHosting/VLBetBot/issues
 
 ### Want to support the developer?
-Feel free to send some bits to user 'CurtisVL' on Bustabit or alternatively you can deposit to this adress: 1FmTAn4rjZSz9wBihkm4utXwEcGKusyAEy
+Feel free to send some bits to user 'CurtisVL' on Bustabit or alternatively you can deposit to this adress: 3H9ra7aV1fk7oMp8vkGvyUdYXx73nJuzVy
 
 
 ## Usage:
