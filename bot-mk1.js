@@ -11,7 +11,7 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.8;
+var version = 1.81;
 
 //----------Modes----------//
 var mode = 6; 
@@ -117,6 +117,9 @@ var firstGrab = true;
 var recovering = false;
 var excludeAmount = 0;
 var numCount = 0;
+
+//Mode 6
+var isRecovering = false;
 
 //Junk Variables (Unused or little used variables)
 var waitForBeforeRecoveryEnabled = false;
@@ -482,8 +485,8 @@ engine.on('game_starting', function(info){
 		
 		//Gamemode 6 (2x Guesser)
 		if(mode == 6){
-			console.log("Base bet: " + baseBet);
 			if(firstGame == true){
+				firstLoss = true;
 				firstGame = false;
 				currentBet = baseBet;
 				currentMultiplier = 2;
@@ -493,14 +496,22 @@ engine.on('game_starting', function(info){
 			}
 			
 			if(lastResult == "LOST"  && betPlaced == false){
-				if(lossCount >= 2){
+				if(lossBalance < 1 && lossBalance > 0){
+					lossBalance = 0;
+				}
+				if(lossCount == 2 && isRecovering == false){
+					isRecovering = true;
+					currentBet = baseBet;
+				}
+				if(isRecovering == true){
 					lossBalance += currentBet;
-					currentMultiplier = 4;
-					numCount = 0;
-					while (((numCount * currentMultiplier) - numCount) < lossBalance) {
-						numCount++;
-					}
-					currentBet = numCount;
+					console.log("Loss to recover: " + lossBalance);
+					currentMultiplier = 1.25;
+					//numCount = 0;
+					//while (((numCount * currentMultiplier) - numCount) < lossBalance) {
+					//	numCount++;
+					//}
+					//currentBet = numCount;
 					if(lossCount >= 99){ //This is unused for now
 						lossCount = 0;
 						currentBet = baseBet;
@@ -508,22 +519,40 @@ engine.on('game_starting', function(info){
 						lossBalance = 0;
 						console.log("Too much loss, resetting...");
 					}
-					betPlaced = true;
-					placeBet();
 				}
-				else{
+				if(isRecovering == false){
 					lossBalance += currentBet;
 					currentBet *= 2;
 					currentMultiplier = 2;
-					betPlaced = true;
-					placeBet();
 				}
+				currentBet = roundBase(currentBet);
+				betPlaced = true;
+				placeBet();
 			}
 			
 			if(lastResult == "WON" && betPlaced == false){
-				lossBalance = 0;
-				currentBet = baseBet;
-				currentMultiplier = 2;
+				if(lossBalance < 1 && lossBalance > 0){
+					lossBalance = 0;
+				}
+				if(lossBalance > 0 && isRecovering == true){
+					currentMultiplier = 1.25;
+					lossBalance -= ((currentBet * 1.25) - currentBet);
+					console.log("Loss to recover: " + lossBalance);
+					currentBet *= 2;
+					if(((currentBet * 1.25) - currentBet) > lossBalance){
+						currentBet = lossBalance * 4;
+					}
+				}
+				if(lossBalance <= 0){
+					lossBalance = 0;
+					currentBet = baseBet;
+					currentMultiplier = 2;
+					isRecovering = false;
+				}
+				if(isRecovering == false){
+					currentBet = baseBet;
+				}
+				currentBet = roundBase(currentBet);
 				betPlaced = true;
 				placeBet();
 			}
