@@ -1,7 +1,5 @@
 # VoxelLoop Gaming Bet Bot
 
-### This is the experimental branch, please use the Master branch unless you know what you're doing!
-
 The VoxelLoop Gaming Bet Bot is an advanced BustaBit bot designed to be ran 24/7 and be as safe as possible.
 
 ### Found an issue or have a suggestion? Create a ticket for it on the issue tracker!

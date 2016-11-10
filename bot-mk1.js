@@ -11,14 +11,14 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.82;
+var version = 1.83;
 
 //----------Modes----------//
 var mode = 6; 
 
 // 1 = Default - Mode will place a bet at the base amount and base multiplier. On loss, it will raise the bet by 4x and increase the multiplier to a max of 1.33x.
 // 4 = Modified Pluscoup - The real deal.
-// 5 = ???
+// 5 = 10x Chaser
 // 6 = ???
 
 //----------Bet amount----------//
@@ -120,6 +120,8 @@ var numCount = 0;
 
 //Mode 6
 var isRecovering = false;
+var tempLossCount = 0;
+var tempMaxLossCount = 0;
 
 //Junk Variables (Unused or little used variables)
 var waitForBeforeRecoveryEnabled = false;
@@ -505,17 +507,16 @@ engine.on('game_starting', function(info){
 				}
 				if(lossCount == 2 && isRecovering == false){
 					isRecovering = true;
-					currentBet = baseBet;
 				}
 				if(isRecovering == true){
 					lossBalance += currentBet;
 					console.log("Loss to recover: " + lossBalance);
-					currentMultiplier = 1.25;
-					//numCount = 0;
-					//while (((numCount * currentMultiplier) - numCount) < lossBalance) {
-					//	numCount++;
-					//}
-					//currentBet = numCount;
+					currentMultiplier = 10;
+					numCount = 0;
+					while (((numCount * currentMultiplier) - numCount) < (lossBalance + baseBet)) {
+						numCount++;
+					}
+					currentBet = numCount;
 					if(lossCount >= 99){ //This is unused for now
 						lossCount = 0;
 						currentBet = baseBet;
@@ -538,23 +539,19 @@ engine.on('game_starting', function(info){
 				if(lossBalance < 1 && lossBalance > 0){
 					lossBalance = 0;
 				}
-				if(lossBalance > 0 && isRecovering == true){
-					currentMultiplier = 1.25;
-					lossBalance -= ((currentBet * 1.25) - currentBet);
-					console.log("Loss to recover: " + lossBalance);
-					currentBet *= 2;
-					if(((currentBet * 1.25) - currentBet) > lossBalance){
-						currentBet = lossBalance * 4;
-					}
-				}
 				if(lossBalance <= 0){
 					lossBalance = 0;
 					currentBet = baseBet;
 					currentMultiplier = 2;
 					isRecovering = false;
 				}
+				if(isRecovering == true){
+					lastCrash >= currentMultiplier;
+					isRecovering = false;
+				}
 				if(isRecovering == false){
 					currentBet = baseBet;
+					currentMultiplier = 2;
 				}
 				currentBet = roundBase(currentBet);
 				betPlaced = true;
