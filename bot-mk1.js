@@ -11,7 +11,7 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.81;
+var version = 1.82;
 
 //----------Modes----------//
 var mode = 6; 
@@ -498,6 +498,10 @@ engine.on('game_starting', function(info){
 			if(lastResult == "LOST"  && betPlaced == false){
 				if(lossBalance < 1 && lossBalance > 0){
 					lossBalance = 0;
+				}
+				if(lossCount == 1 && isRecovering == false){
+					lossBalance = 0;
+					lossBalance += baseBet;
 				}
 				if(lossCount == 2 && isRecovering == false){
 					isRecovering = true;
