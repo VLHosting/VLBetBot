@@ -11,35 +11,44 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.76;
+var version = 1.83;
 
-//----------Site----------//
-var BustaBit = true; 
-// true = using BustaBit - false = using CS:GO Crash
+//----------Modes----------//
+var mode = 6; 
 
+// 1 = Default - Mode will place a bet at the base amount and base multiplier. On loss, it will raise the bet by 4x and increase the multiplier to a max of 1.33x.
+// 4 = Modified Pluscoup - The real deal.
+// 5 = 10x Chaser
+// 6 = ???
 
 //----------Bet amount----------//
-var autoBaseBetEnabled = true; 
+var autoBaseBetEnabled = false; 
 // Default: true - Enable/Disable auto base bet. Described below.
 
-var maxLossCount = 8;
+var maxLossCount = 150;
 // Default: 8 - Max amount of loses to account for with autoBaseBetEnabled set to true.
 
-var percentageOfTotal = 100;
-// Default: 100 - Percentage of total balance to use when max loss is hit. (100 = 100%)
-
-var baseBet = 10; 
+var baseBet = 4; 
 // Default: 100 - Manual base bet, only used when autoBaseBetEnabled is false.
 
 var cashOut = 1.50; 
 // Default: 1.13 - Cash out at this amount. Some modes will have a locked cash out.
 
-var maxBet = 99999999; 
-// The max amount to bet - The lower this number, the slower you will earn back your loses.
+//----------Misc----------//
+var maxNegative = 99999999; 
+// The max amount to allow the profit to drop to before the bot will stop.
 
+var randomBreak = 0; 
+// Default: 0 - When a round starts, the bot will generate a number between 1 and 100.
+// If the generated number is smaller than the randomBreak, the bot will wait a game before betting.
 
-//----------Crash Average----------//
-//(Only used in modes 1)
+var clearConsole = true;
+// Default: true - Clear the console after 500 minutes, usefull for running the bot on systems with low RAM.
+
+var limitedConsole = true;
+// Default: false - Limited console output, useful for running the bot 24/7, helps keep the browser responsive.
+
+//----------Mode 1 Specific Settings----------//
 
 var highAverage = 1.85; 
 // Default: 1.85 - Average multiplier to use the highAverageMultiplier.
@@ -53,54 +62,24 @@ var lowAverage = 1.70;
 var lowAverageMultiplier = 1.02;
 // Default: 1.05 - Multiplier to use when crash average is below lowAverage.
 
-var waitForBeforeRecoveryEnabled = false;
-// Default: false - Wait for x multiplier to hit before placing the recovery bet.
+//-----------Mode 5 Specific Settings----------//
 
-var waitForBeforeRecovery = 1.30;
-// Default: 1.30 - Amount to wait for before placing recovery bet.
+var mode5BaseBet = 5;
+var mode5Multiplier = 19;
+var mode5MinProfit = 60;
 
-//----------Mode 2 Settings----------//
-var mode2multiplyBy = 1.16;
-// Default: 1.16 - Amount to multiply the base by on each loss.
+////////////////////////////////
+//                            //
+//Do not edit below this line!//
+//                            //
+////////////////////////////////
 
-var mode2waitAfterWin = 8;
-// Default: 8 - How many rounds to wait after a win before placing again. (0 to disable)
-
-//----------Mode 3 Settings----------//
-var mode3cashOut = 2.1;
-// Default: 2.1 - Amount to cash out in mode 3.
-
-//----------Misc----------//
-var maxNegative = 99999999; 
-// The max amount to allow the profit to drop to before the bot will stop.
-
-var randomBreak = 0; 
-// Default: 0 - When a round starts, the bot will generate a number between 1 and 100.
-// If the generated number is smaller than the randomBreak, the bot will wait a game before betting.
-
-var clearConsole = true;
-// Default: true - Clear the console after 500 minutes, usefull for running the bot on systems with low RAM.
-
-var limitedConsole = false;
-// Default: false - Limited console output, useful for running the bot 24/7, helps keep the browser responsive.
-
-var reserveAmount = 10000;
-// Default: 10000 - Amount to reserve after profiting.
-
-//----------Modes----------//
-var mode = 4; 
-
-// 1 = Default - Mode will place a bet at the base amount and base multiplier. On loss, it will raise the bet by 4x and increase the multiplier to a max of 1.33x.
-// *Deprecated* 2 = 9x Seeker - Mode will place the base amount and 9x multiplier. On loss, it will raise the bet by mode2multiplyBy until a 10x is reached.
-// *Deprecated* 3 = Martingale - Multiplies on loss.
-// 4 = Modified Pluscoup - The real deal.
-
-//Do not edit below this line!
-
+//Core
 var user;
 var startBalance = engine.getBalance();
-var currentGame = -1;
-var currentBet;
+var currentGame = 0;
+var currentBet = 1;
+var currentMultiplier = 1;
 var lastBet;
 var gameResult;
 var gameInside;
@@ -109,7 +88,6 @@ var takingBreak = false;
 var firstGame = true;
 var lossCount = 0;
 var winCount = 0;
-var currentMultiplier;
 var lossBalance = 0;
 var firstLoss = true;
 var lastResult;
@@ -122,14 +100,15 @@ var newdate;
 var timeplaying;
 var lastCrash;
 var betPlaced = false;
-var tempBet;
-var tempCrash;
 var gameAverage = 0;
-var currentGame = 0;
 var game1;
 var game2;
 var game3;
 var game4;
+
+//All modes
+var tempBet;
+var tempCrash;
 var resetLoss;
 var waitTime = -1;
 var lossStreak;
@@ -137,7 +116,23 @@ var temptime = 120;
 var firstGrab = true;
 var recovering = false;
 var excludeAmount = 0;
+var numCount = 0;
 
+//Mode 6
+var isRecovering = false;
+var tempLossCount = 0;
+var tempMaxLossCount = 0;
+
+//Junk Variables (Unused or little used variables)
+var waitForBeforeRecoveryEnabled = false;
+var waitForBeforeRecovery = 1.30;
+var percentageOfTotal = 100;
+var maxBet = 99999999; 
+var reserveAmount = 10000;
+var BustaBit = true;
+
+
+//Main script start
 if(startup == true){
 	if(mode == 2 || mode == 3){
 		window.alert("These modes have been removed! Please use modes 1 or 4.");
@@ -199,7 +194,7 @@ engine.on('game_starting', function(info){
 	}
 	
 	//Auto base bet
-	if(autoBaseBetEnabled == true && lastResult == "WON" && mode != 4 || firstGame == true && mode != 4){
+	if(autoBaseBetEnabled == true && lastResult == "WON" && mode != 4 || firstGame == true && mode != 4 && mode != 6){
 		var divider = 100;
 		for (i = 0; i < maxLossCount; i++) {
 			if(mode == 1){
@@ -216,7 +211,7 @@ engine.on('game_starting', function(info){
 	}
 	
 	//Mode 4 Auto base bet
-	if(autoBaseBetEnabled == true && lastResult == "WON" && mode == 4 || firstGame == true && mode == 4){
+	if(autoBaseBetEnabled == true && lastResult == "WON" && mode == 4 || firstGame == true && mode == 4 && mode != 6){
 		//var tempBalance = (engine.getBalance() - (excludeAmount * 100));
 		var divider = 100;
 		for (i = 0; i < maxLossCount; i++) {
@@ -434,6 +429,135 @@ engine.on('game_starting', function(info){
 				}
 			}
 		}
+		
+		//Gamemode 5 (???)
+		if(mode == 5){
+			
+			//First Game
+			if(firstGame == true && betPlaced == false){
+				currentBet = mode5BaseBet;
+				currentMultiplier = mode5Multiplier;
+				firstGame = false;
+				placeBet();
+				newdate = new Date();
+				timeplaying = ((newdate.getTime() - startTime) / 1000) / 60;
+				betPlaced = true;
+			}
+			
+			//On Lost
+			if(lastResult == "LOST" && betPlaced == false){
+				if(firstLoss == true){
+					tempBet = currentBet;
+					lossBalance = 0;
+					firstLoss = false;
+				}
+				lossBalance += currentBet;
+				tempBet *= 1.08;
+				numCount = 0;
+				while (((numCount * currentMultiplier) - numCount) < (lossBalance + mode5MinProfit)) {
+					numCount++;
+				}
+				console.log("New Base: " + numCount);
+				tempBet = numCount;
+				
+				currentBet = tempBet;
+				console.log("Lost balance: " + lossBalance);
+				console.log("Loss Count: " + lossCount);
+				currentBet = roundBase(currentBet);
+				placeBet();
+				betPlaced = true;
+			}
+			
+			//On Win
+			if(lastResult == "WON" && betPlaced == false){		
+				console.log("Lost balance: " + lossBalance);
+				if(lossBalance < 0){
+					lossBalance = 0;
+					console.log("Lost balance reset");
+				}
+				else{
+					lossBalance -= ((currentBet * currentMultiplier) - currentBet);
+				}
+				currentBet = mode5BaseBet;
+				placeBet();
+				betPlaced = true;
+				firstLoss = true;
+			}
+		}
+		
+		//Gamemode 6 (2x Guesser)
+		if(mode == 6){
+			if(firstGame == true){
+				firstLoss = true;
+				firstGame = false;
+				currentBet = baseBet;
+				currentMultiplier = 2;
+				lossBalance = 0;
+				betPlaced = true;
+				placeBet();
+			}
+			
+			if(lastResult == "LOST"  && betPlaced == false){
+				if(lossBalance < 1 && lossBalance > 0){
+					lossBalance = 0;
+				}
+				if(lossCount == 1 && isRecovering == false){
+					lossBalance = 0;
+					lossBalance += baseBet;
+				}
+				if(lossCount == 2 && isRecovering == false){
+					isRecovering = true;
+				}
+				if(isRecovering == true){
+					lossBalance += currentBet;
+					console.log("Loss to recover: " + lossBalance);
+					currentMultiplier = 10;
+					numCount = 0;
+					while (((numCount * currentMultiplier) - numCount) < (lossBalance + baseBet)) {
+						numCount++;
+					}
+					currentBet = numCount;
+					if(lossCount >= 99){ //This is unused for now
+						lossCount = 0;
+						currentBet = baseBet;
+						currentMultiplier = 2;
+						lossBalance = 0;
+						console.log("Too much loss, resetting...");
+					}
+				}
+				if(isRecovering == false){
+					lossBalance += currentBet;
+					currentBet *= 2;
+					currentMultiplier = 2;
+				}
+				currentBet = roundBase(currentBet);
+				betPlaced = true;
+				placeBet();
+			}
+			
+			if(lastResult == "WON" && betPlaced == false){
+				if(lossBalance < 1 && lossBalance > 0){
+					lossBalance = 0;
+				}
+				if(lossBalance <= 0){
+					lossBalance = 0;
+					currentBet = baseBet;
+					currentMultiplier = 2;
+					isRecovering = false;
+				}
+				if(isRecovering == true){
+					lastCrash >= currentMultiplier;
+					isRecovering = false;
+				}
+				if(isRecovering == false){
+					currentBet = baseBet;
+					currentMultiplier = 2;
+				}
+				currentBet = roundBase(currentBet);
+				betPlaced = true;
+				placeBet();
+			}
+		}
 	}
 });
 
@@ -567,4 +691,10 @@ function printResults(){
 function randNum(min,max)
 {
     return Math.floor(Math.random()*(max-min+1)+min);
+}
+
+function roundBase(base)
+{
+	console.log("Base: " + base);
+	return Math.round(base);
 }
