@@ -11,7 +11,7 @@
 */
 
 //Version -- Do not change this variable
-var version = 1.83;
+var version = 1.84;
 
 //----------Modes----------//
 var mode = 6; 
@@ -47,6 +47,9 @@ var clearConsole = true;
 
 var limitedConsole = true;
 // Default: false - Limited console output, useful for running the bot 24/7, helps keep the browser responsive.
+
+var bypassSecurity = false;
+// Default: false - Set to true to bypass recommended settingsl, only set to true is required.
 
 //----------Mode 1 Specific Settings----------//
 
@@ -135,7 +138,19 @@ var BustaBit = true;
 //Main script start
 if(startup == true){
 	if(mode == 2 || mode == 3){
-		window.alert("These modes have been removed! Please use modes 1 or 4.");
+		window.alert("These modes have been removed! Please use modes 1, 4, 5 or 6.");
+		engine.stop();
+	}
+	if(mode == 1 && cashOut >= 2 || mode == 4 && cashOut >= 2){
+		window.alert("We suggest you use a cash out of less than 2 for Mode 1 and 4! To bypass this message set 'bypassSecurity' to true.");
+		engine.stop();
+	}
+	if(mode == 5  && cashOut >= 20 || mode == 6 && cashOut >= 20){
+		window.alert("We suggest you use a cash out of less than 20 for Mode 5 and 6! To bypass this message set 'bypassSecurity' to true.");
+		engine.stop();
+	}
+	if(baseBet >= (engine.getBalance() / 6)){
+		window.alert("Your base bet is far too high! Please read the guides on GitHub for settings advice. To bypass this message set 'bypassSecurity' to true.");
 		engine.stop();
 	}
 	
