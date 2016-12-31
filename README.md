@@ -11,7 +11,7 @@ Feel free to send some bits to user 'CurtisVL' on Bustabit or alternatively you 
 
 ## Usage:
 
-For using the default mode (Mode 6), all you need to do is set the baseBet variable and his run.
+For using the default mode (Mode 6), all you need to do is set the baseBet variable and hit run.
 
 ### Mode 4
 Mode 4 is a modified version of the Pluscoup progression system.
